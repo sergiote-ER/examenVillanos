@@ -5,7 +5,7 @@ import logging
 import random
 from typing import Dict, Optional, Type
 
-from models import Heroe, Personaje, Villano
+from models import Jugador, Personaje, Tecnico, Heroe, Villano, Miembros
 
 logger = logging.getLogger(__name__)
 
@@ -16,9 +16,11 @@ class Gestion:
     def __init__(self):
         self.heroes: Dict[int, Heroe] = {}
         self.villanos: Dict[int, Villano] = {}
+        self.jugadores: Dict[int, Jugador] = {}
+        self.tecnicos: Dict[int, Tecnico] = {}
         self._siguiente_id = 1
 
-    def _obtener_diccionario(self, tipo: str):
+    def _obtener_diccionario_heroes_villanos(self, tipo: str):
         tipo = tipo.strip().lower()
         if tipo in ("heroe", "héroe", "heroes", "héroes"):
             return self.heroes
@@ -37,10 +39,10 @@ class Gestion:
                                         fecha_nacimiento: str) -> Personaje:
         """Crea un personaje y lo almacena en el diccionario correspondiente."""
         try:
-            diccionario = self._obtener_diccionario(tipo)
+            diccionario = self._obtener_diccionario_heroes_villanos(tipo)
             fecha = self._leer_fecha(fecha_nacimiento)
             identificador = self._siguiente_id
-            clase: Type[Personaje] = Heroe if diccionario is self.heroes else Villano
+            clase: Type[Personaje] = Jugador if diccionario is self.heroes else Villano
 
             personaje = clase(identificador, nombre, apellidos, fecha)
             personaje.generar_cualidades()
@@ -65,7 +67,7 @@ class Gestion:
             if tipo is None or tipo.strip().lower() in ("todos", "todo"):
                 personajes = list(self.heroes.values()) + list(self.villanos.values())
             else:
-                personajes = list(self._obtener_diccionario(tipo).values())
+                personajes = list(self._obtener_diccionario_heroes_villanos(tipo).values())
             logger.info("Listado solicitado. Tipo=%s, cantidad=%s", tipo, len(personajes))
             return personajes
         except Exception:
@@ -79,7 +81,7 @@ class Gestion:
         Operadores permitidos: =, !=, >, >=, <, <=, contiene.
         """
         try:
-            diccionario = self._obtener_diccionario(tipo)
+            diccionario = self._obtener_diccionario_heroes_villanos(tipo)
             atributo = atributo.strip().lower()
             operador = operador.strip().lower()
             resultados = []
@@ -159,7 +161,7 @@ class Gestion:
     def eliminar_personaje(self, tipo: str, identificador: int) -> bool:
         """Elimina un personaje por su identificador."""
         try:
-            diccionario = self._obtener_diccionario(tipo)
+            diccionario = self._obtener_diccionario_heroes_villanos(tipo)
             if identificador not in diccionario:
                 logger.warning("No existe personaje tipo=%s id=%s", tipo, identificador)
                 return False
@@ -168,4 +170,46 @@ class Gestion:
             return True
         except Exception:
             logger.exception("Error al eliminar personaje.")
+            raise
+
+    def _obtener_diccionario_plantilla_futbol(self, tipo: str):
+        tipo = tipo.strip().lower()
+        if tipo in "jugador":
+            return self.jugadores
+        if tipo in ("tecnico", "técnico"):
+            return self.tecnicos
+        raise ValueError("Tipo no válido. Escribe 'jugador' o 'técnico'.")
+
+    def crear_miembro_plantilla_futbol(self, tipo: str, nombre: str, apellidos: str) -> Miembros:
+        """Crea un personaje y lo almacena en el diccionario correspondiente."""
+        try:
+            diccionario = self._obtener_diccionario_plantilla_futbol(tipo)
+            identificador = self._siguiente_id
+            clase: Type[Miembros] = Jugador if diccionario is self.jugadores else Tecnico
+
+            miembro = clase(identificador, nombre, apellidos)
+            miembro.generar_cualidades()
+            diccionario[identificador] = miembro
+            self._siguiente_id += 1
+
+            logger.info("Creado %s id=%s nombre=%s %s",clase.__name__, identificador, nombre, apellidos)
+            return miembro
+        except (ValueError, TypeError):
+            logger.exception("No se pudo crear el personaje.")
+            raise
+        except Exception:
+            logger.exception("Error inesperado al crear un personaje.")
+            raise
+
+    def listar_plantilla_miembros(self, tipo: Optional[str] = None) -> list:
+        """Lista los personajes guardados."""
+        try:
+            if tipo is None or tipo.strip().lower() in ("todos", "todo"):
+                miembros = list(self.jugadores.values()) + list(self.tecnicos.values())
+            else:
+                miembros = list(self._obtener_diccionario_plantilla_futbol(tipo).values())
+            logger.info("Listado solicitado. Tipo=%s, cantidad=%s", tipo, len(miembros))
+            return miembros
+        except Exception:
+            logger.exception("Error al listar personajes.")
             raise

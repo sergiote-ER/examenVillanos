@@ -99,11 +99,10 @@ class Menu:
         else:
             print("No existe un personaje con ese identificador.")
 
-
     def mostrar_plantilla_futbol(self) -> None:
         """Muestra el menú de futbol y procesa las opciones."""
         while True:
-            print("\n=== Plantilla de fútbol ===")
+            print("\n=== PLANTILLAS DE FÚTBOL ===")
             print("1. Agregar miembro")
             print("2. Listar plantilla")
             print("3. Crear plantilla")
@@ -112,11 +111,11 @@ class Menu:
             try:
                 opcion = input("Elige una opción: ").strip()
                 if opcion == "1":
-                    self._crear("heroe")
+                    self._crear_miembro("jugador")
                 elif opcion == "2":
-                    self._crear("villano")
+                    self._listar_plantilla()
                 elif opcion == "3":
-                    self._listar()
+                    self._crear_plantilla()
                 elif opcion == "4":
                     logger.info("Aplicación cerrada por el usuario.")
                     print("Hasta luego.")
@@ -165,3 +164,21 @@ class Menu:
             except Exception:
                 logger.exception("Error no controlado en el menú.")
                 print("Se ha producido un error. Consulta el archivo aplicacion.log.")
+
+    def _crear_miembro(self, tipo: str) -> None:
+        nombre = input("Nombre: ").strip()
+        apellidos = input("Apellidos: ").strip()
+        personaje = self.gestion.crear_miembro_plantilla_futbol(tipo, nombre, apellidos)
+        print(f"Personaje creado: {personaje}")
+
+    def _listar_plantilla(self) -> None:
+        tipo = input("¿Qué quieres listar? (juadores/villano/todos): ").strip()
+        miembros = self.gestion.listar_plantilla_miembros(tipo)
+        if not miembros:
+            print("No hay miembros para mostrar.")
+            return
+        for miembro in miembros:
+            print(miembro)
+
+    def _crear_plantilla(self) -> None:
+        pass

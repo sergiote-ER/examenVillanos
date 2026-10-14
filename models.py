@@ -35,10 +35,7 @@ class Personaje(ABC):
     def edad(self) -> int:
         """Calcula la edad teniendo en cuenta si ya ha cumplido años."""
         hoy = date.today()
-        return hoy.year - self.fecha_nacimiento.year - (
-            (hoy.month, hoy.day) < (self.fecha_nacimiento.month,
-                                    self.fecha_nacimiento.day)
-        )
+        return hoy.year - self.fecha_nacimiento.year - ((hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day))
 
     def generar_cualidades(self) -> None:
         """Asigna valores aleatorios entre 0 y 100 a las cualidades."""
@@ -47,10 +44,7 @@ class Personaje(ABC):
             for nombre in self.nombres_cualidades()
         }
         self.calcular_puntuacion()
-        logger.info(
-            "Cualidades generadas para %s id=%s",
-            self.__class__.__name__, self.identificador
-        )
+        logger.info("Cualidades generadas para %s id=%s",self.__class__.__name__, self.identificador)
 
     @abstractmethod
     def nombres_cualidades(self) -> tuple:
@@ -61,9 +55,7 @@ class Personaje(ABC):
         if not self.cualidades:
             self.puntuacion_total = 0
         else:
-            self.puntuacion_total = round(
-                sum(self.cualidades.values()) / len(self.cualidades), 2
-            )
+            self.puntuacion_total = round(sum(self.cualidades.values()) / len(self.cualidades), 2)
 
     def obtener_datos(self) -> dict:
         """Devuelve los datos del personaje en un diccionario."""
@@ -111,4 +103,64 @@ class Villano(Personaje):
             "entregadortardio",
             "ausencias",
             "hablador",
+        )
+
+
+class Miembros(ABC):
+    """Clase base común para jugadores y técnicos."""
+
+    def __init__(self, identificador: int, nombre: str, apellidos: str,
+                 fecha_nacimiento: date):
+        if not isinstance(identificador, int) or identificador <= 0:
+            raise ValueError("El identificador debe ser un entero positivo.")
+        if not nombre or not nombre.strip():
+            raise ValueError("El nombre no puede estar vacío.")
+        if not apellidos or not apellidos.strip():
+            raise ValueError("Los apellidos no pueden estar vacíos.")
+
+        self.identificador = identificador
+        self.nombre = nombre.strip()
+        self.apellidos = apellidos.strip()
+        self.cualidades = {}
+
+
+    @abstractmethod
+    def nombres_posicion_rol(self) -> tuple:
+        """Devuelve los nombres de las cualidades de la subclase."""
+
+    def obtener_datos(self) -> dict:
+        """Devuelve los datos del personaje en un diccionario."""
+        return {
+            "identificador": self.identificador,
+            "tipo": self.__class__.__name__,
+            "nombre": self.nombre,
+            "apellidos": self.apellidos,
+            **self.cualidades,
+        }
+
+    def __str__(self) -> str:
+        cualidades = ", ".join(
+            f"{nombre}={valor}" for nombre, valor in self.cualidades.items()
+        )
+        return (
+            f"[{self.__class__.__name__} #{self.identificador}] "
+            f"{self.nombre} {self.apellidos} |"
+        )
+
+
+class Jugador(Miembros):
+    """Personaje con cualidades propias de un héroe."""
+
+    def nombres_posicion_rol(self) -> tuple:
+        return (
+            "posicion",
+        )
+
+
+class Tecnico(Miembros):
+    """Personaje con cualidades propias de un villano."""
+
+    def nombres_posicion_rol(self) -> tuple:
+        return (
+            "rol",
         )
