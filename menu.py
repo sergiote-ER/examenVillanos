@@ -10,8 +10,8 @@ class Menu:
     def __init__(self, gestion: Gestion):
         self.gestion = gestion
 
-    def mostrar(self) -> None:
-        """Muestra el menú principal y procesa las opciones."""
+    def mostrar_heroes_villanos(self) -> None:
+        """Muestra el menú de heroes y villanos y procesa las opciones."""
         while True:
             print("\n=== HÉROES Y VILLANOS DEL VIRGEN ===")
             print("1. Crear héroe")
@@ -58,12 +58,12 @@ class Menu:
         nombre = input("Nombre: ").strip()
         apellidos = input("Apellidos: ").strip()
         fecha = input("Fecha de nacimiento (AAAA-MM-DD): ").strip()
-        personaje = self.gestion.crear_personaje(tipo, nombre, apellidos, fecha)
+        personaje = self.gestion.crear_personaje_heroes_villanos(tipo, nombre, apellidos, fecha)
         print(f"Personaje creado: {personaje}")
 
     def _listar(self) -> None:
         tipo = input("¿Qué quieres listar? (heroe/villano/todos): ").strip()
-        personajes = self.gestion.listar_personajes(tipo)
+        personajes = self.gestion.listar_personajes_heroes_villanos(tipo)
         if not personajes:
             print("No hay personajes para mostrar.")
             return
@@ -77,7 +77,7 @@ class Menu:
         atributo = input("Atributo: ").strip()
         operador = input("Operador (=, !=, >, >=, <, <=, contiene): ").strip()
         valor = input("Valor a buscar: ").strip()
-        resultados = self.gestion.buscar_por_atributo(tipo, atributo, operador, valor)
+        resultados = self.gestion.buscar_por_atributo_heroes_villanos(tipo, atributo, operador, valor)
         if not resultados:
             print("No se han encontrado coincidencias.")
         else:
@@ -98,3 +98,70 @@ class Menu:
             print("Personaje eliminado.")
         else:
             print("No existe un personaje con ese identificador.")
+
+
+    def mostrar_plantilla_futbol(self) -> None:
+        """Muestra el menú de futbol y procesa las opciones."""
+        while True:
+            print("\n=== Plantilla de fútbol ===")
+            print("1. Agregar miembro")
+            print("2. Listar plantilla")
+            print("3. Crear plantilla")
+            print("4. Salir")
+
+            try:
+                opcion = input("Elige una opción: ").strip()
+                if opcion == "1":
+                    self._crear("heroe")
+                elif opcion == "2":
+                    self._crear("villano")
+                elif opcion == "3":
+                    self._listar()
+                elif opcion == "4":
+                    logger.info("Aplicación cerrada por el usuario.")
+                    print("Hasta luego.")
+                    break
+                else:
+                    print("Opción no válida.")
+                    logger.warning("Opción de menú no válida: %s", opcion)
+            except (ValueError, TypeError) as exc:
+                print(f"Error: {exc}")
+                logger.warning("Entrada no válida: %s", exc)
+            except (KeyboardInterrupt, EOFError):
+                logger.info("Salida solicitada desde teclado.")
+                print("\nAplicación finalizada.")
+                break
+            except Exception:
+                logger.exception("Error no controlado en el menú.")
+                print("Se ha producido un error. Consulta el archivo aplicacion.log.")
+
+    def mostrar_menu_aplicaciones(self) -> None:
+        while True:
+            print("\n=== MENÚ DE APLICACIONES ===")
+            print("1. Héroes y villanos")
+            print("2. Plantillas de fútbol")
+            print("3. Salir")
+
+            try:
+                opcion = input("Elige una opción: ").strip()
+                if opcion == "1":
+                    self.mostrar_heroes_villanos()
+                elif opcion == "2":
+                    self.mostrar_plantilla_futbol()
+                elif opcion == "3":
+                    logger.info("Aplicación cerrada por el usuario.")
+                    print("Hasta luego.")
+                    break
+                else:
+                    print("Opción no válida.")
+                    logger.warning("Opción de menú no válida: %s", opcion)
+            except (ValueError, TypeError) as exc:
+                print(f"Error: {exc}")
+                logger.warning("Entrada no válida: %s", exc)
+            except (KeyboardInterrupt, EOFError):
+                logger.info("Salida solicitada desde teclado.")
+                print("\nAplicación finalizada.")
+                break
+            except Exception:
+                logger.exception("Error no controlado en el menú.")
+                print("Se ha producido un error. Consulta el archivo aplicacion.log.")

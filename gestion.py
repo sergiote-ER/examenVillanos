@@ -33,8 +33,8 @@ class Gestion:
         except (ValueError, AttributeError) as exc:
             raise ValueError("Fecha no válida. Usa el formato AAAA-MM-DD.") from exc
 
-    def crear_personaje(self, tipo: str, nombre: str, apellidos: str,
-                        fecha_nacimiento: str) -> Personaje:
+    def crear_personaje_heroes_villanos(self, tipo: str, nombre: str, apellidos: str,
+                                        fecha_nacimiento: str) -> Personaje:
         """Crea un personaje y lo almacena en el diccionario correspondiente."""
         try:
             diccionario = self._obtener_diccionario(tipo)
@@ -59,7 +59,7 @@ class Gestion:
             logger.exception("Error inesperado al crear un personaje.")
             raise
 
-    def listar_personajes(self, tipo: Optional[str] = None) -> list:
+    def listar_personajes_heroes_villanos(self, tipo: Optional[str] = None) -> list:
         """Lista los personajes guardados."""
         try:
             if tipo is None or tipo.strip().lower() in ("todos", "todo"):
@@ -72,8 +72,8 @@ class Gestion:
             logger.exception("Error al listar personajes.")
             raise
 
-    def buscar_por_atributo(self, tipo: str, atributo: str, operador: str,
-                            valor_buscado: str) -> list:
+    def buscar_por_atributo_heroes_villanos(self, tipo: str, atributo: str, operador: str,
+                                            valor_buscado: str) -> list:
         """
         Busca recorriendo el diccionario seleccionado.
         Operadores permitidos: =, !=, >, >=, <, <=, contiene.
